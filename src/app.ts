@@ -4,6 +4,8 @@ import typeormRouter from './Router/typeorm/typeorm.route';
 import azureRouter from './Router/azureStorage/azureStorage.route';
 import validatorRouter from './Router/dataValidation/dataValidation.route';
 import jwtRouter from './Router/jwt/jwt.route';
+import ytdlRouter from './Router/ytdl/ytdl.route';
+import streamRouter from './Router/stream/stream.route';
 const socketRouter = require('./Router/socket/websocket.route');
 import { createConnection } from 'typeorm';
 const { configSettings } = require('./config/settings');
@@ -41,7 +43,21 @@ var mongoDb: any;
 
 /** typeorm mysql connection */
 var mysql;
-createConnection()
+createConnection({
+  type: configSettings.typeOrmDb1.type,
+  host: configSettings.typeOrmDb1.host,
+  port: configSettings.typeOrmDb1.port,
+  username: configSettings.typeOrmDb1.username,
+  password: configSettings.typeOrmDb1.password,
+  database: configSettings.typeOrmDb1.database,
+  entities: [`dist/entity/**/*.js`],
+  synchronize: configSettings.typeOrmDb1.synchronize,
+  logging: configSettings.typeOrmDb1.logging,
+  migrations: ['migration/*.js'], //migration 하고싶은 파일 명
+  cli: {
+    migrationsDir: 'migration',
+  },
+})
   .then((connection) => {
     console.log(`# connected typeorm1`);
     mysql = connection;
@@ -99,6 +115,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/public', express.static('public'));
+app.use('/media', express.static(`${configSettings.youtube_dl_path}`));
 app.use(
   '/react1',
   express.static(`${configSettings.react_project1_path}/build`),
@@ -197,6 +214,8 @@ app.use('/typeorm', typeormRouter);
 app.use('/socket', socketRouter(passport));
 app.use('/validator', validatorRouter);
 app.use('/jwt', jwtRouter);
+app.use('/ytdl', ytdlRouter);
+app.use('/stream', streamRouter);
 
 app.get('/list', function (요청, 응답) {
   mongoDb

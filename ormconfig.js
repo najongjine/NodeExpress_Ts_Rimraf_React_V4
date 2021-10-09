@@ -1,4 +1,4 @@
-const { configSettings } = require('./src/config/settings.ts');
+const { configSettings } = require('./src/config/settings.js');
 
 //npm run typeorm migration:generate -- -n myname -o
 //npm run typeorm migration:run

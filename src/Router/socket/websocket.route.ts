@@ -15,12 +15,11 @@ const router = Router();
 // export default router;
 
 module.exports = function (globalVariable: any) {
-  router.post('/testRoute', (req, res, next) => {
-    console.log(globalVariable);
-
-    res.json({
-      message: 'Test Route Success',
-    });
+  router.get('/webrtc/action', (req, res) => {
+    res.render('webrtc/action.ejs');
+  });
+  router.get('/webrtc/index', (req, res) => {
+    res.render('webrtc/index.ejs');
   });
   router.post(
     '/login',
