@@ -4,6 +4,8 @@ let Validator = require('validatorjs');
 import typeorm from 'typeorm';
 import encryption from '../../utils/encryption';
 
+import * as types from './types'
+
 //router 인스턴스를 하나 만들고
 const router = Router();
 
@@ -44,11 +46,12 @@ let rules = {
 };
 /** https://www.npmjs.com/package/validatorjs */
 router.post('/validate', function (요청, 응답) {
-  let personValidation = new Validator(요청.body.personInfo, rules);
+  let personInfo:types.validateBody=요청.body.personInfo
+  let personValidation = new Validator(personInfo, rules);
   if (personValidation.fails()) {
     return 응답.status(200).json({
       success: false,
-      data: null,
+      data: personInfo,
       custMsg: 'data validation failed',
       errMsg: personValidation.errors,
     });

@@ -4,6 +4,7 @@ import { User } from '../../entity/User';
 import typeorm from 'typeorm';
 import { Post } from '../../entity/Post';
 import { SubPost } from '../../entity/SubPost';
+import queries from './typeorm.queries';
 const bcrypt = require('bcrypt');
 
 //router 인스턴스를 하나 만들고
@@ -22,8 +23,9 @@ function getTypeormMysqlInstance(
 }
 router.use(getTypeormMysqlInstance);
 
-router.get('/', function (요청, 응답) {
-  응답.status(200).send('this router works');
+router.get('/', async function (요청, 응답) {
+  const result=await queries.q1(mysql1);
+  응답.status(200).json(result);
 });
 
 /** https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#joining-relations */

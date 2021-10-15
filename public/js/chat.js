@@ -8,7 +8,7 @@ let roomInput = document.getElementById('roomName');
 let roomName;
 let creator = false;
 let rtcPeerConnection;
-let userStream;
+let userStream=null;
 
 let divButtonGroup = document.getElementById('btn-group');
 let muteButton = document.getElementById('muteButton');
@@ -104,6 +104,8 @@ socket.on('created', function () {
     .catch(function (err) {
       /* handle the error */
       alert("Couldn't Access User Media");
+      divVideoChatLobby.style = 'display:none';
+      divButtonGroup.style = 'display:flex';
     });
 });
 
@@ -131,6 +133,9 @@ socket.on('joined', function () {
     .catch(function (err) {
       /* handle the error */
       alert("Couldn't Access User Media");
+      divVideoChatLobby.style = 'display:none';
+      divButtonGroup.style = 'display:flex';
+      socket.emit('ready', roomName);
     });
 });
 
@@ -143,13 +148,18 @@ socket.on('full', function () {
 // Triggered when a peer has joined the room and ready to communicate.
 
 socket.on('ready', function () {
+  console.log("## on ready")
   if (creator) {
     rtcPeerConnection = new RTCPeerConnection(iceServers);
     rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
     rtcPeerConnection.ontrack = OnTrackFunction;
-    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
-
+    if(userStream && userStream.getTracks()[0]){
+      rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+    }
+    if(userStream && userStream.getTracks()[1]){
+      rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+    }
+    
     rtcPeerConnection
       .createOffer()
       .then((offer) => {
@@ -177,8 +187,12 @@ socket.on('offer', function (offer) {
     rtcPeerConnection = new RTCPeerConnection(iceServers);
     rtcPeerConnection.onicecandidate = OnIceCandidateFunction;
     rtcPeerConnection.ontrack = OnTrackFunction;
-    rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
-    rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+    if(userStream && userStream.getTracks()[0]){
+      rtcPeerConnection.addTrack(userStream.getTracks()[0], userStream);
+    }
+    if(userStream && userStream.getTracks()[1]){
+      rtcPeerConnection.addTrack(userStream.getTracks()[1], userStream);
+    }
     rtcPeerConnection.setRemoteDescription(offer);
 
     rtcPeerConnection
@@ -229,8 +243,13 @@ function OnIceCandidateFunction(event) {
 }
 
 // Implementing the OnTrackFunction which is part of the RTCPeerConnection Interface.
-
+/**
+ * 
+ * @param {*} event 
+ * RTCTrackEvent {isTrusted: true, receiver: RTCRtpReceiver, track: MediaStreamTrack, streams: Array(1), transceiver: RTCRtpTransceiver, …}
+ */
 function OnTrackFunction(event) {
+  console.log("## ontrackfunc event: ",event)
   peerVideo.srcObject = event.streams[0];
   peerVideo.onloadedmetadata = function (e) {
     peerVideo.play();

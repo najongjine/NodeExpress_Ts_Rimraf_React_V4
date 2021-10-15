@@ -7,7 +7,7 @@ import jwtRouter from './Router/jwt/jwt.route';
 import ytdlRouter from './Router/ytdl/ytdl.route';
 import streamRouter from './Router/stream/stream.route';
 const socketRouter = require('./Router/socket/websocket.route');
-import { createConnection } from 'typeorm';
+import { Connection, createConnection } from 'typeorm';
 const { configSettings } = require('./config/settings');
 const MongoClient = require('mongodb').MongoClient;
 const passport = require('passport');
@@ -42,7 +42,7 @@ const port: Number = 8080;
 var mongoDb: any;
 
 /** typeorm mysql connection */
-var mysql;
+var mysql!: Connection;
 createConnection({
   type: configSettings.typeOrmDb1.type,
   host: configSettings.typeOrmDb1.host,
@@ -283,3 +283,5 @@ io.on('connection', function (socket: any) {
     socket.broadcast.to(roomName).emit('leave');
   });
 });
+
+require('./schedule')
